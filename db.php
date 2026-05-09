@@ -1,17 +1,16 @@
 <?php
-// db.php — MySQL байланысы (XAMPP)
-// Файлды: htdocs/shymkent_monitor/db.php
-
-define('DB_HOST', 'localhost');
-define('DB_USER', 'root');       // XAMPP default
-define('DB_PASS', '');           // XAMPP default (бос)
-define('DB_NAME', 'shymkent_monitor');
+// db.php — Railway MySQL байланысы
+define('DB_HOST',    getenv('MYSQLHOST')     ?: 'localhost');
+define('DB_PORT',    getenv('MYSQLPORT')     ?: '3306');
+define('DB_USER',    getenv('MYSQLUSER')     ?: 'root');
+define('DB_PASS',    getenv('MYSQLPASSWORD') ?: '');
+define('DB_NAME',    getenv('MYSQLDATABASE') ?: 'railway');
 define('DB_CHARSET', 'utf8mb4');
 
 function getDB(): PDO {
     static $pdo = null;
     if ($pdo === null) {
-        $dsn = "mysql:host=" . DB_HOST . ";dbname=" . DB_NAME . ";charset=" . DB_CHARSET;
+        $dsn = "mysql:host=" . DB_HOST . ";port=" . DB_PORT . ";dbname=" . DB_NAME . ";charset=" . DB_CHARSET;
         $options = [
             PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
             PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
@@ -39,4 +38,9 @@ function jsonResponse(mixed $data, int $code = 200): void {
 // Sanitize input
 function clean(string $val): string {
     return htmlspecialchars(strip_tags(trim($val)), ENT_QUOTES, 'UTF-8');
+}
+
+// JSON body helper
+function getBody(): array {
+    return json_decode(file_get_contents('php://input'), true) ?? [];
 }
